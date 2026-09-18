@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aarush 🎉</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    height:100%;
+    overflow:hidden;
+    background: radial-gradient(circle at 50% 20%, #1b1035, #05010f 70%);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: white;
+  }
+  canvas { position:fixed; top:0; left:0; z-index:0; }
+  .wrap {
+    position:relative;
+    z-index:2;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 20px;
+  }
+  h1 {
+    font-size: clamp(2.5rem, 12vw, 6rem);
+    background: linear-gradient(90deg,#ff6ec7,#ffd93d,#6ee7ff,#a78bfa,#ff6ec7);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shine 4s linear infinite, pop 0.6s ease-out;
+    letter-spacing: 2px;
+  }
+  @keyframes shine { to { background-position: 300% center; } }
+  @keyframes pop { from { transform: scale(0.5); opacity:0;} to { transform: scale(1); opacity:1;} }
+  .subtitle {
+    margin-top: 10px;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    opacity: 0.85;
+  }
+  .btnrow { margin-top: 40px; display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+  button {
+    font-size: 1rem;
+    padding: 14px 26px;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    background: linear-gradient(135deg,#7c3aed,#ec4899);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgba(236,72,153,0.4);
+    transition: transform 0.15s ease;
+  }
+  button:hover { transform: translateY(-3px) scale(1.03); }
+  button:active { transform: translateY(0) scale(0.97); }
+  #fact {
+    margin-top: 28px;
+    max-width: 480px;
+    font-size: 1.1rem;
+    min-height: 30px;
+    opacity: 0.95;
+    transition: opacity 0.2s;
+  }
+  .hint {
+    position:fixed;
+    bottom: 16px;
+    width:100%;
+    text-align:center;
+    font-size: 0.8rem;
+    opacity: 0.4;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="wrap">
+  <h1 id="title">AARUSH</h1>
+  <div class="subtitle">has officially entered the internet. 🚀</div>
+  <div class="btnrow">
+    <button id="confettiBtn">🎊 Confetti!</button>
+    <button id="factBtn">🔮 Random Aarush Fact</button>
+  </div>
+  <div id="fact"></div>
+</div>
+<div class="hint">tap anywhere for fireworks ✨</div>
+
+<script>
+const canvas = document.getElementById('fx');
+const ctx = canvas.getContext('2d');
+function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+let particles = [];
+
+function burst(x, y, count=60){
+  const hue = Math.random()*360;
+  for(let i=0;i<count;i++){
+    const angle = Math.random()*Math.PI*2;
+    const speed = Math.random()*6+2;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed,
+      life: 60+Math.random()*30,
+      color: `hsl(${hue + Math.random()*60}, 90%, 60%)`,
+      size: Math.random()*4+2
+    });
+  }
+}
+
+function confettiRain(){
+  for(let i=0;i<120;i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: -20,
+      vx: (Math.random()-0.5)*2,
+      vy: Math.random()*3+2,
+      life: 200+Math.random()*100,
+      color: `hsl(${Math.random()*360}, 90%, 60%)`,
+      size: Math.random()*5+3,
+      rain: true
+    });
+  }
+}
+
+function loop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.x += p.vx;
+    p.y += p.vy;
+    if(!p.rain) p.vy += 0.12;
+    p.life -= 1;
+    ctx.globalAlpha = Math.max(p.life/100, 0);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, p.size, p.size);
+  });
+  ctx.globalAlpha = 1;
+  particles = particles.filter(p=>p.life > 0 && p.y < canvas.height+50);
+  requestAnimationFrame(loop);
+}
+loop();
+
+window.addEventListener('pointerdown', e => burst(e.clientX, e.clientY));
+document.getElementById('confettiBtn').addEventListener('click', confettiRain);
+
+const facts = [
+  "Aarush.pakhale.com was deployed in under 5 minutes flat.",
+  "Aarush's name in Sanskrit relates to 'first ray of sun' — basically a main character energy name.",
+  "Statistically, 100% of people named Aarush deserve their own website.",
+  "This page has zero backend, zero database, and 100% vibes.",
+  "Somewhere, a server just spun up purely to say hi to Aarush.",
+  "If you refresh this page 100 times, it will still just say hi to Aarush. Try it.",
+  "This site runs entirely on JavaScript, caffeine, and good intentions.",
+];
+const factEl = document.getElementById('fact');
+document.getElementById('factBtn').addEventListener('click', () => {
+  factEl.style.opacity = 0;
+  setTimeout(()=>{
+    factEl.textContent = facts[Math.floor(Math.random()*facts.length)];
+    factEl.style.opacity = 1;
+  }, 150);
+});
+
+// welcome burst
+setTimeout(()=> burst(canvas.width/2, canvas.height/2, 100), 400);
+</script>
+</body>
+</html>
